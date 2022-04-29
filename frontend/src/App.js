@@ -60,7 +60,7 @@ function App() {
             </header>
             {!account ? <button onClick={connect}>connect to wallet</button>: <button onClick={disconnect}>disconnect from wallet</button>}
             {account && <div><Calendar></Calendar></div>}
-            {account}
+            {account? <p>connected account: {account}</p>: <p>No account connected</p>}
         </div>
     );
 }
