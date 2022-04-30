@@ -27,7 +27,7 @@ contract Calend3 {
         // TODO IDSME Do some require checks.. require(msg.sender == owner, "Only owner can change rate"); for each argument.
         uint _amountPaid = msg.value;
         uint  minimum_payment_amount = (_endTime - _startTime) * rate;
-        if (msg.sender != owner) { // If owner blocks agenda he should not have to pay. (oke only gas)
+        if (msg.sender == owner) { // If owner blocks agenda he should not have to pay. (oke only gas)
             revert('owner cannot book an appointment');
         }
         if (_startTime >= _endTime) {
@@ -102,9 +102,21 @@ contract Calend3 {
         return rate;
     }
 
+    function getRatePer( uint _minutes) public view returns (uint) {
+        return rate * _minutes;
+    }
+
+    function getRatePerHour() public view returns (uint) {
+        return getRatePer(60);
+    }
+
     function setRate(uint _rate) public {
         require(msg.sender == owner, "Only owner can change rate");
         rate = _rate;
+    }
+
+    function getOwner() public view returns (address) {
+        return owner;
     }
 
 }

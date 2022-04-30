@@ -3,17 +3,26 @@ const { ethers } = require("hardhat");
 
 // Real ether rate... can differ because we can set rate dynamically.
 // What is rate for 1 hour?
+// Is it completely configurable?
 
 describe("Calend3", function () {
   let Contract, contract;
   let owner, addr1, addr2;
+  let orgOwnerTestBalance = 0;
 
   beforeEach(async function () {
     [owner, addr1, addr2] = await ethers.getSigners();
 
+    orgOwnerTestBalance = await ethers.provider.getBalance(owner.address);
+
     Contract = await ethers.getContractFactory("Calend3");
     contract = await Contract.deploy("1");
     await contract.deployed();
+
+    const deploymentCost = orgOwnerTestBalance - await ethers.provider.getBalance(owner.address); // Convert to ether...
+    const convertedToEth = deploymentCost / 1e18;
+
+    console.log(`Deployment cost of this contract on hardhat`, convertedToEth);
   });
 
   it("Should return the new rate once it's changed", async function () {
@@ -28,21 +37,38 @@ describe("Calend3", function () {
   });
 
 
+  it("Should return the rate per Hour", async function () {
+    expect(await contract.getRatePerHour()).to.equal("60");
+  });
+
+  it("Should return the rate for 1 minute", async function () {
+    expect(await contract.getRatePer(1)).to.equal("1");
+  });
+
+
   it("Should be blocked from setting rate as msg is not owner", async function () {
     await expect(contract.connect(addr1).setRate("1")).to.be.revertedWith("Only owner can change rate");
   });
 
   it("Should fail, as appointment requester did not pay enough", async function () {
+    // TODO IDSME MUST needs to happen.. {value:  ethers.utils.parseEther("0.1")}
     await expect(contract.createAppointment("Meeting with Part Time Ids", 0, 60, {value: "59"})).to.be.revertedWith("You need to pay at least: 60, you tried to pay: 59 WEI");
   });
 
   it("Should add 1 as appointment requester payed exactly the right amount, but no tip", async function () {
-    const tx = await contract.createAppointment("Meeting with Part Time Ids", 0, 60, {value: "60"});
+    const tx = await contract.connect(addr2).createAppointment("Meeting with Part Time Ids", 0, 60, {value: "60"});
     await tx.wait();
 
     const appointments = await contract.getAppointments();
 
     expect(appointments.length).to.equal(1);
+
+    const addr2Balance = await ethers.provider.getBalance(addr2.address);
+
+    const costOfTransaction = (orgOwnerTestBalance - addr2Balance) / 1e18;
+    console.log(`What does 1 new appointment cost..?  ${costOfTransaction} ETH`);
+    console.log(`What does 1 new appointment cost..?  ${costOfTransaction * 3000} USDT`); // 0.72 USDT.. mmm, should this be lower. payed 60 ETH?
+
   });
 
   it("Should fail as appointment requester payed more then fee + tip, thus far to much. If more then (200%) is payed, requester probably made a typo, which will lead to add manual intervention if we don't rollback.", async function () {
