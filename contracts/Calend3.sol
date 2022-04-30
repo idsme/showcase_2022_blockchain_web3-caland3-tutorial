@@ -18,13 +18,14 @@ contract Calend3 {
     Appointment[] appointments;
 
     constructor(uint _rate) {
-        owner = payable(msg.sender);
+        owner = payable(msg.sender); // casts upgrades address to a payable address
         rate = _rate;
     }
 
-    // TODO IDSME make it return something.
-    function createAppointment(string memory _title, uint _startTime, uint _endTime, uint _amountPaid) public payable returns (Appointment memory) {
+    // TODO IDSNME make it return something.
+    function createAppointment(string memory _title, uint _startTime, uint _endTime) public payable returns (Appointment memory) {
         // TODO IDSME Do some require checks.. require(msg.sender == owner, "Only owner can change rate"); for each argument.
+        uint _amountPaid = msg.value;
         uint  minimum_payment_amount = (_endTime - _startTime) * rate;
         if (msg.sender != owner) { // If owner blocks agenda he should not have to pay. (oke only gas)
             revert('owner cannot book an appointment');
@@ -77,7 +78,19 @@ contract Calend3 {
                 //revert('Unexpected condition.... reverting money to be safe.');
             }
         }
-        appointments.push(Appointment(_title, msg.sender, _startTime, _endTime, _amountPaid));
+
+        (bool success,) = owner.call{value: msg.value}("");
+        require(success, "Failed to send money to owner");
+
+        Appointment memory appointment;
+        appointment.title = _title;
+        appointment.startTime = _startTime;
+        appointment.endTime = _endTime;
+        appointment.amountPaid = minimum_payment_amount;
+        appointments.push(appointment);
+
+        //appointments.push(Appointment(_title, msg.sender, _startTime, _endTime, _amountPaid));
+
         return appointments[appointments.length - 1];
     }
 

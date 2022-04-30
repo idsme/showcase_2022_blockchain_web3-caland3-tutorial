@@ -1,4 +1,4 @@
-import react, {useState, useEffect} from 'react';
+import {useState, useEffect} from 'react';
 import './App.css';
 import detectEthereumProvider from '@metamask/detect-provider';
 import Calendar from './Calendar';
