@@ -17,7 +17,7 @@ import "@openzeppelin/contracts/utils/Strings.sol";
 contract Calend3 {
 
     uint rate = 1;
-    address owner;
+    address payable public owner;
     event Deposit(address indexed _sender, address indexed _owner, uint _amount);
 
     struct Appointment {
@@ -30,7 +30,7 @@ contract Calend3 {
 
     event Booking(Appointment _appointment);
 
-    // TODO IDSME currently but would a mapp not offer better functionality... || performance
+    // TODO IDSME currently but would a map not offer better functionality... || performance
     Appointment[] appointments;
 
     constructor(uint _rate) {
@@ -131,7 +131,4 @@ contract Calend3 {
         rate = _rate;
     }
 
-    function getOwner() public view returns (address) {
-        return owner;
-    }
 }
