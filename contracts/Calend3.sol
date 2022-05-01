@@ -38,6 +38,7 @@ contract Calend3 {
         rate = _rate;
     }
 
+    // TODO IDSME ... could we improve on return variable?
     function createAppointment(string memory _title, uint _startTime, uint _endTime) public payable returns (Appointment memory) {
         // TODO IDSME Do some require checks.. require(msg.sender == owner, "Only owner can change rate"); for each argument.
         uint _amountPaid = msg.value;
