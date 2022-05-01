@@ -12,6 +12,7 @@ import "@openzeppelin/contracts/utils/Strings.sol";
 // More event logging. more require() to validate input.
 // Can security of this contract be improved?
 // Can gas fees surrounding this contract be reduced?
+// Revert vs Require? What results in cleaner solution?
 
 contract Calend3 {
 
@@ -27,6 +28,9 @@ contract Calend3 {
         uint amountPaid;  // amount paid for the meeting
     }
 
+    event Booking(Appointment _appointment);
+
+    // TODO IDSME currently but would a mapp not offer better functionality... || performance
     Appointment[] appointments;
 
     constructor(uint _rate) {
@@ -83,6 +87,7 @@ contract Calend3 {
             else // pure else statement false.. fix this... as is strange bug in Solidity compiler?
             {
                 // TODO IDSME ... if all of above don't apply then appointment can be made as we have room in agenda.
+                emit Deposit(msg.sender, owner, msg.value);
                 //revert('Unexpected condition.... reverting money to be safe.');
             }
         }
@@ -98,7 +103,7 @@ contract Calend3 {
 //        appointments.attendee = msg.sender; // compilation error... now using above but... verify that this functions return info is now correct.
         appointments.push(appointment);
 
-        emit Deposit(msg.sender, owner, msg.value);
+        emit Booking(appointment);
         //appointments.push(Appointment(_title, msg.sender, _startTime, _endTime, _amountPaid));
 
         return appointments[appointments.length - 1];
@@ -128,5 +133,4 @@ contract Calend3 {
     function getOwner() public view returns (address) {
         return owner;
     }
-
 }

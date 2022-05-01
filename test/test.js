@@ -56,12 +56,12 @@ describe("Calend3", function () {
   });
 
   it("Should add 1 as appointment requester payed exactly the right amount, but no tip", async function () {
-    const tx = await contract.createAppointment("Meeting with Part Time Ids", 0, 60, {value:  ethers.utils.parseEther("60")});
+    const tx = await contract.connect(addr2).createAppointment("Meeting with Part Time Ids", 0, 60, {value:  ethers.utils.parseEther("60")});
     //console.log(await contract.callStatic.createAppointment("Meeting with Part Time Ids", 0, 60, {value:  ethers.utils.parseEther("60")}));
 
 
     const rc = await tx.wait(); // 0ms, as tx is already confirmed
-    const event = rc.events.find(event => event.event === 'Deposit');
+    const event = rc.events.find(event => event.event === 'Deposit' || 'Booking');
     const [from, to, value] = event.args;
     console.log(`logging events:>`,from, to, value);
 
