@@ -2,10 +2,22 @@
 pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/utils/Strings.sol";
 
+// Features:
+// Overlapping meetings are not allowed.
+// Is no real problem if owner books him self and pays... makes all functionality easier to test. As no contract.connects needs to be done in test.
+// Paying more is allowed but not more then twice amount that is asked. (100% tip is enough). This guards against client making types.. and asking some money back if they put decimal comma at wrong place.@author
+
+// Features for future...
+// How much tip was received in payments received?
+// More event logging. more require() to validate input.
+// Can security of this contract be improved?
+// Can gas fees surrounding this contract be reduced?
+
 contract Calend3 {
 
     uint rate = 1;
     address owner;
+    event Deposit(address indexed _sender, address indexed _owner, uint _amount);
 
     struct Appointment {
         string title;     // title of the meeting
@@ -22,14 +34,10 @@ contract Calend3 {
         rate = _rate;
     }
 
-    // TODO IDSNME make it return something.
     function createAppointment(string memory _title, uint _startTime, uint _endTime) public payable returns (Appointment memory) {
         // TODO IDSME Do some require checks.. require(msg.sender == owner, "Only owner can change rate"); for each argument.
         uint _amountPaid = msg.value;
         uint  minimum_payment_amount = (_endTime - _startTime) * rate;
-        if (msg.sender == owner) { // If owner blocks agenda he should not have to pay. (oke only gas)
-            revert('owner cannot book an appointment');
-        }
         if (_startTime >= _endTime) {
             revert('start time must be before end time');
         }
@@ -82,13 +90,15 @@ contract Calend3 {
         (bool success,) = owner.call{value: msg.value}("");
         require(success, "Failed to send money to owner");
 
-        Appointment memory appointment;
-        appointment.title = _title;
-        appointment.startTime = _startTime;
-        appointment.endTime = _endTime;
-        appointment.amountPaid = minimum_payment_amount;
+        Appointment memory appointment = Appointment(_title, msg.sender, _startTime, _endTime, _amountPaid);
+//        appointment.title = _title;
+//        appointment.startTime = _startTime;
+//        appointment.endTime = _endTime;
+//        appointment.amountPaid = minimum_payment_amount;
+//        appointments.attendee = msg.sender; // compilation error... now using above but... verify that this functions return info is now correct.
         appointments.push(appointment);
 
+        emit Deposit(msg.sender, owner, msg.value);
         //appointments.push(Appointment(_title, msg.sender, _startTime, _endTime, _amountPaid));
 
         return appointments[appointments.length - 1];
