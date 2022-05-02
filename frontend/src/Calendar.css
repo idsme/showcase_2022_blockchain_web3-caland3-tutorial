@@ -6,3 +6,10 @@
     margin: 20px;
     height: 600px;
 }
+
+#admin {
+    background: white;
+    color: black;
+    padding: 50px;
+    margin: 20px;
+}

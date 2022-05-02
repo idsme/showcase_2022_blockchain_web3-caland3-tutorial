@@ -9,6 +9,7 @@
     "hhc": "npm run hardhat-compile",
     "hardhat-accounts": "npx hardhat accounts",
     "hardhat-compile": "npx hardhat compile",
+    "hardhat-deploy-contract-abi-to-frontend": "npx hardhat run ../scripts/deploy.js --network ropsten",
     "hardhat-deploy": "npx hardhat deploy",
     "hardhat-deploy-all": "npx hardhat deploy --all"
   },
