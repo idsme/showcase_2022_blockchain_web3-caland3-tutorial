@@ -59,7 +59,7 @@ function App() {
                 <p id="slogan">web3 appointment scheduler</p>
             </header>
             {!account ? <button onClick={connect}>connect to wallet</button>: <button onClick={disconnect}>disconnect from wallet</button>}
-            {account && <div><Calendar></Calendar></div>}
+            {account && <div><Calendar account={account}></Calendar></div>}
             {account? <p>connected account: {account}</p>: <p>No account connected</p>}
         </div>
     );
