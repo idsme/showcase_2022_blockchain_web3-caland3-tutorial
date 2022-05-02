@@ -26,6 +26,8 @@ contract Calend3 {
         uint startTime;   // start time of meeting
         uint endTime;     // end time of the meeting
         uint amountPaid;  // amount paid for the meeting
+        string notes;  // amount paid for the meeting
+        string costs;
     }
 
     event Booking(Appointment _appointment);
@@ -39,7 +41,7 @@ contract Calend3 {
     }
 
     // TODO IDSME ... could we improve on return variable?
-    function createAppointment(string memory _title, uint _startTime, uint _endTime) public payable returns (Appointment memory) {
+    function createAppointment(string memory _title, uint _startTime, uint _endTime, string memory _notes, string memory costs) public payable returns (Appointment memory) {
         // TODO IDSME Do some require checks.. require(msg.sender == owner, "Only owner can change rate"); for each argument.
         uint _amountPaid = msg.value;
         uint  minimum_payment_amount = (_endTime - _startTime) * rate;
@@ -96,16 +98,10 @@ contract Calend3 {
         (bool success,) = owner.call{value: msg.value}("");
         require(success, "Failed to send money to owner");
 
-        Appointment memory appointment = Appointment(_title, msg.sender, _startTime, _endTime, _amountPaid);
-//        appointment.title = _title;
-//        appointment.startTime = _startTime;
-//        appointment.endTime = _endTime;
-//        appointment.amountPaid = minimum_payment_amount;
-//        appointments.attendee = msg.sender; // compilation error... now using above but... verify that this functions return info is now correct.
+        Appointment memory appointment = Appointment(_title, msg.sender, _startTime, _endTime, _amountPaid, _notes, costs);
         appointments.push(appointment);
 
         emit Booking(appointment);
-        //appointments.push(Appointment(_title, msg.sender, _startTime, _endTime, _amountPaid));
 
         return appointments[appointments.length - 1];
     }
@@ -126,6 +122,7 @@ contract Calend3 {
         return getRatePer(60);
     }
 
+    // TODO IDSME improve by adding a return value.. thus no second call needs to be made?
     function setRate(uint _rate) public {
         require(msg.sender == owner, "Only owner can change rate");
         rate = _rate;
