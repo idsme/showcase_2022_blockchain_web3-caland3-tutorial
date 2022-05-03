@@ -274,7 +274,6 @@ const Calendar = ({account}) => {
             <Appointments />
             <AppointmentForm />
         </Scheduler>
-
     </div>
     {showDialog && <ConfirmDialog />}
 </>);
