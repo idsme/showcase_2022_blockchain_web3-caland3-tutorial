@@ -54,6 +54,11 @@ const Calendar = ({account}) => {
     const [rate, setRate] = useState(-13);
     const [appointments, setAppointments] = useState(schedulerData);
 
+    const [showDialog, setShowDialog] = useState(false);
+    const [showSign, setShowSign] = useState(false);
+    const [mined, setMined] = useState(false);
+    const [transactionHash, setTransactionHash] = useState("");
+
     const getData = async () => {
         console.log(`getData`);
         const rate = await contract.getRate();
@@ -102,6 +107,24 @@ const Calendar = ({account}) => {
         const cost = (schedularMeeting.endDate / 60) - (schedularMeeting.startDate / 60) * rate;
         schedularMeeting.notes = (schedularMeeting.notes)? schedularMeeting.notes + `\nCost: ${cost}`: `Cost: ${cost}`;
         console.log(`schedularMeeting`, schedularMeeting);
+
+        setShowSign(true);
+        setShowDialog(true);
+        setMined(false);
+
+        try {
+            const msg = {value: ethers.utils.parseEther(cost.toString())};
+            let transaction = await contract.createAppointment(schedularMeeting.title, schedularMeeting.startDate, schedularMeeting.endDate, schedularMeeting.notes, cost);
+
+            setShowSign(false);
+
+            await transaction.wait();
+
+            setMined(true);
+            setTransactionHash(transaction.hash);
+        } catch (error) {
+            console.log(error);
+        }
 
         // try {
         //     const tx = await contract.createAppointment(schedularMeeting.title, schedularMeeting.startDate, schedularMeeting.endDate, schedularMeeting.notes, cost);
